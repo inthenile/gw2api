@@ -1,0 +1,27 @@
+*{
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body{
+    background: rgba(150, 198, 252, 0.3);
+    background-size: cover;
+}
+.results{
+margin: 0 auto;    
+max-width: 800px;
+word-wrap: break-word;
+}
+
+
+.pagination button{
+    padding: 0;
+    height: 30px;
+    width: 30px;
+    margin-inline-end: 10px;
+    margin-top: 10px;
+}
+
+button.active{
+    background-color: darkgoldenrod;
+    border: none;
+}
