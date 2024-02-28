@@ -1,27 +1,105 @@
+@import url('https://fonts.googleapis.com/css2?family=Jacques+Francois&display=swap');
+
+:root{
+    --title-color: rgb(59, 9, 54);
+    --text-color: #2c2c2c;
+    --highlight-color: #e097fd;
+    --button-color: rgb(241, 97, 177);
+}
 *{
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-family: "Jacques Francois", serif;
+    margin: 0;
 }
-
 body{
-    background: rgba(150, 198, 252, 0.3);
-    background-size: cover;
-}
-.results{
-margin: 0 auto;    
-max-width: 800px;
-word-wrap: break-word;
-}
-
-
-.pagination button{
     padding: 0;
-    height: 30px;
-    width: 30px;
-    margin-inline-end: 10px;
-    margin-top: 10px;
+    background-color: rgb(252, 244, 255);
+}
+h1,h2,h3{
+    color: var(--title-color);
+}
+p, a{
+    color: var(--text-color);
+    line-height: 2em;
 }
 
-button.active{
-    background-color: darkgoldenrod;
+
+nav{
+    text-align: center;
+    height: 100%;
+    width: 50%;
+    margin: 0 auto 15px auto;
+}
+nav h1{
+    margin-bottom: 15px;
+}
+nav h3{
+    border-top: 1px solid var(--highlight-color);
+    padding-top: 15px;
+}
+a{
+    color: var(--highlight-color);
+    text-decoration: none;
+}
+a:hover{
+    text-decoration: underline;
+}
+.info{
+    font-size: .9em;
+    text-align: center;
+}
+input, select{
+    display: block;
+    margin: 0 auto;
+    height: 30px;
+}
+.save-button, .search-button{
+    margin: 20px auto 20px auto;
+    display: block;;
+    height: 30px;
+}
+
+.results{
+margin: 0 auto 30px auto;    
+max-width: 80%;
+word-wrap: break-word;
+text-align: center;
+}
+
+.pagination{
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+    width: 50%;
+    margin: 0 auto;
+    align-items: center;
+    justify-items: center;
+}
+button{
     border: none;
+    background-color: var(--highlight-color);
+
+}
+.pagination button{
+    height: 40px;
+    width: 60px;
+
+}
+button:hover{
+    background-color: #c349f3;
+    cursor: pointer;
+    color: white;
+}
+button.active{
+    background-color: var(--button-color)
+}
+footer{
+    text-align: center;
+    margin-top: 50px;
+}
+
+@media screen and (min-width: 768px){
+    .pagination{
+        grid-template-columns: repeat(auto-fill, minmax(50px, 1fr));
+
+    }
 }
