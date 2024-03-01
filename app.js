@@ -110,7 +110,7 @@ const makePages = async (wrapper, pageNum, perPage, key, value) => {
             value = valuesShown[i];
             let div = document.createElement("div");
             //Whether there is keys to the values or not, You show up index numbers for the items or the keys themselves
-            div.innerHTML = `<p>${!key?(startPos+i+1)+"-" : ""} ${key ? key + ":" : ""} <span style="font-weight: bold">${value}</span></p>`;
+            div.innerHTML = `${!key?(startPos+i+1)+"-" : ""} ${key ? key + ":" : ""} <p style="font-weight: bold">${value}</p>`;
             wrapper.appendChild(div);
         }
     }
@@ -207,11 +207,12 @@ const fetchData = async (accessToken) => {
                     } else {
                         data = await makeNestedArray(value,"https://api.guildwars2.com/v2/items?ids=", accessToken);  
                     }
-                    
+                    console.log(data);
                     value.length = 0;
                     for (let i = 0; i < data.length; i++) {
-                        const item = data[i];
-                        value.push(item.name);
+                        const {icon, name} = data[i];
+                        key.push(`<a href=${icon} target="_blank"><img src=${icon}  alt="mini icon" height="30px" width="30px"></a>`)
+                        value.push(name);
                     }
                 break;
 
@@ -251,7 +252,6 @@ const fetchData = async (accessToken) => {
                         const element = result[i];
                         const {id} = element;
                         value.push(id);
-                        console.log(id);
                     }
                     if(result.length < 200){      
                         data = await fetchRequest(value, "https://api.guildwars2.com/v2/items?ids=", accessToken)
@@ -269,7 +269,7 @@ const fetchData = async (accessToken) => {
                             var {icon, name} = element;
                             var {description} = element.details;
                         }
-                        key.push([`<img src=${icon}><br/> <p>${description}</p>`]);
+                        key.push([`<a href=${icon} target="_blank"><img src=${icon}  alt="mini icon" height="30px" width="30px"></a> <br/> <p>${description}</p>`]);
                         value.push(name);
                     }
                 break;
@@ -339,7 +339,6 @@ async function makeNestedArray(result, url, accessToken) {
 //SOME VALUES ARE GOING MISSING
 async function fetchRequest(result, url, accessToken){ //for API calls that return less than 200 values.
     let dataUrl = `${url}${result},?access_token=${accessToken}`
-    console.log(dataUrl);
     try{
         let response = await fetch(dataUrl);
         if (response.ok) {
