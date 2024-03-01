@@ -69,85 +69,99 @@ const endpointArray = [
 /*---PAGINATION---*/
 let resultsDiv = document.querySelector(".results");
 let pagination = document.querySelector(".pagination");
-let currentPage = 1;
-let itemsPerPage = 20;
+let fetchInfo = document.querySelector(".fetch-info")
+let currentPage = 0;
+let itemsPerPage = 10;
+let maxPage = 1; //initial value; changes dynamically
 
 //create pages to be displayed each time on a certain page
-const makePages = async (data, wrapper, pageNum, perPage) => {
-    wrapper.innerHTML = "";
-    pageNum --;
+let title = document.querySelector(".title");
+let key = [];
+let value = [];
+
+const makePages = async (wrapper, pageNum, perPage, key, value) => {
+    fetchInfo.innerText = "";
+    wrapper.innerText = "";
     let startPos = pageNum * perPage;
     let endPos =  startPos + perPage;
-    let dataShown =  data.slice(startPos, endPos);
-    if(data === null) {
-        
+    if (key) {
+        var keysShown =  key.slice(startPos, endPos);
     }
-    if(typeof data[0][0] === "string"){ //if the first element in the array is string, it must be a key-value pair; simply send it to the DOM 
-        for (let i = 0; i < dataShown.length; i++){ 
-            let key = dataShown[i][0]
-            let value = dataShown[i][1]
-            let div = document.createElement("div");
-            div.innerHTML = `<p><span style="font-weight: bold">${key}</span> : ${value}</p>`;
-            wrapper.appendChild(div);
-        }    
-    } else if(typeof data[0][0] === "object" || data !== undefined) { //if it is an object, it's likely that its a nested array; deconstruct it and then reflect it to the DOM.
+    let valuesShown = value.slice(startPos, endPos)
+    
+    let pageNumButton = document.querySelector(".page-number");
+    let prevButton = document.querySelector(".prev-button");
+    let nextButton = document.querySelector(".next-button");
 
-        let newDataArray = data.flat(); //flatten them into a single array
-        dataShown = newDataArray.slice(startPos, endPos)
-        for (let i = 0; i < dataShown.length; i++) {
-            let data = dataShown[i];
+    if(pageNumButton){
+        pageNumButton.innerText = `${pageNum+1} of ${maxPage}`;
+    }
+
+    //Change highlighting of buttons depending on whether there are no more pages left
+    pageNum+1 === maxPage ? nextButton.classList.add("inactive") : nextButton.classList.remove("inactive");
+    pageNum+1 === 1 ? prevButton.classList.add("inactive") : prevButton.classList.remove("inactive");
+
+    //if there are key-value pairs, display them 
+    if(value){
+    for (let i = 0; i < valuesShown.length; i++) {
+        if (keysShown) {
+            key = keysShown[i]    
+        }
+            value = valuesShown[i];
             let div = document.createElement("div");
-            div.innerHTML = `<p>${data.categories} : <span style="font-weight:bold">${data.name}</span></p>`
+            //Whether there is keys to the values or not, You show up index numbers for the items or the keys themselves
+            div.innerHTML = `<p>${!key?(startPos+i+1)+"-" : ""} ${key ? key + ":" : ""} <span style="font-weight: bold">${value}</span></p>`;
             wrapper.appendChild(div);
         }
     }
 }
 
-const paginate = async (data, wrapper, perPage) => {
+const paginate = async (data, wrapper, perPage, key, value) => {
     wrapper.innerHTML = "";
-
-    let pageCount = 0;
-    if(data === null || data.length === 0 || data === undefined){ //if results are empty, there is nothing to paginate, but I need to reset the previous pages
-        resultsDiv.innerHTML = `<p> NOTHING TO SHOW HERE </p>`;
+    if(data === null || data.length === 0 || data === undefined){   
+        fetchInfo.innerHTML = `<p> NOTHING TO SHOW HERE </p>`;
     }else if(typeof data[0][0] !== "object"){
-        pageCount = Math.ceil(data.length / perPage);           //This is problematic with returned data values that contain nested arrays, which, when deconstructe
+        maxPage = Math.ceil(data.length / perPage);                 //This is problematic with returned data values that contain nested arrays, which, when deconstructe
                                                                     //return much more elements than their nested array length; that's why I need to check the typeof 
                                                                     //the data as well to determine whether its a nested array or not. Then I can flatten the nested arrays
                                                                     //to get their actual length and calculate page numbers thus
     } else if(typeof data[0][0] === "object"){ 
-
         let flattenedData = data.flat();
-        pageCount = Math.ceil(flattenedData.length / perPage);
+        maxPage = Math.ceil(flattenedData.length / perPage);
     }                                                                    
     
-    for(let i = 0; i < pageCount; i++){
-        let buttons = await makeButtons(data, i+1);
-        wrapper.appendChild(buttons);
+    for(let i = 0; i < 3; i++){
+        let buttons = await makeButtons(maxPage, key, value)
+        wrapper.appendChild(buttons[i])
     }
 }
 
 //create page buttons
-const makeButtons = async (data, page) => {
-    currentPage = 1; //current page is always 1 to start with
+const makeButtons = async (maxPage, key, value) => {
+    let prevButton = document.createElement("button");
+    prevButton.classList.add("prev-button")
+    let nextButton = document.createElement("button");
+    nextButton.classList.add("next-button")
+    prevButton.innerText = "<";
+    nextButton.innerHTML = ">";
     let button = document.createElement("button");
-    button.innerText = page;
+    button.classList.add("page-number");
+    button.innerText = `${currentPage+1} of ${maxPage}`;
 
-    if (currentPage === page) {
-        button.classList.add("active");
-    } 
+    nextButton.addEventListener("click", () =>{
+        if(currentPage+1 < maxPage){
+            currentPage++;        
+            makePages(resultsDiv, currentPage, itemsPerPage, key, value);
+        } 
+    })
 
-        button.addEventListener("click", () =>{
-            currentPage = page;
-            let activeButton = document.querySelector(".active");
-
-            if(!button.classList.contains("active")){
-                activeButton.classList.remove("active");
-                button.classList.add("active");
-                makePages(data, resultsDiv, page, itemsPerPage);
-            }
-        })
-
-    return button;
+    prevButton.addEventListener("click", () => {
+        if(currentPage !== 0){
+            currentPage--;
+            makePages(resultsDiv, currentPage,itemsPerPage, key, value);       
+        }
+    }) 
+    return [prevButton, button, nextButton];
 }
 
 
@@ -161,18 +175,124 @@ for (let i = 0; i < endpointArray.length; i++) {
 }
 
 // API CALL
-const fetchData = async (key, searchParam) => {
-
+const fetchData = async (accessToken) => {
+    title.innerText= `${searchParam}`;
     try{
-        let apiEndPoint= `https://api.guildwars2.com/v2/${searchParam}?access_token=${key}`;
-        if(!key){
+        let apiEndPoint= `https://api.guildwars2.com/v2/${searchParam}?access_token=${accessToken}`;
+        if(!accessToken){
             document.querySelector(".info").innerText = "Please use a valid API key.";
         } else {
-            resultsDiv.innerHTML = "Fetching your data"
             let response = await fetch(apiEndPoint);
             let result = await response.json();
-            await parseData(key, searchParam, result); 
-            
+            let resultEntries = Object.entries(result);
+            let resultKeys = Object.keys(result)
+            let resultValues = Object.values(result);
+            data=[];
+            key = [];//emptying these values before filling them up with new data
+            value = [];
+
+            //NEED TO PASS AN ARRAY OF IDS AS THE FIRST ARGUMENT
+            switch (searchParam) { //these switch statements can be used to return key and value pairs as desired.
+                case "account/bank":
+
+                    for (let i = 0; i < resultValues.length; i++) {
+                        const item = resultValues[i];
+                        if (item !== null) {
+                            var {id, count} = item;
+                            value.push(id);
+                        }
+                    }
+                    if(value.length < 200){      //all api end points are limited to 200 
+                        data = await fetchRequest(value,"https://api.guildwars2.com/v2/items?ids=", accessToken)
+                    } else {
+                        data = await makeNestedArray(value,"https://api.guildwars2.com/v2/items?ids=", accessToken);  
+                    }
+                    
+                    value.length = 0;
+                    for (let i = 0; i < data.length; i++) {
+                        const item = data[i];
+                        value.push(item.name);
+                    }
+                break;
+
+                case "account/minis":
+                    if(result.length < 200){     
+                        data = await fetchRequest(resultValues, "https://api.guildwars2.com/v2/minis?ids=", accessToken)
+                    } else {
+                        data = await makeNestedArray(resultValues,"https://api.guildwars2.com/v2/minis?ids=", accessToken); 
+                    }
+                    console.log(data.length);
+                    for (let i = 0; i < data.length; i++) {
+                        const element = data[i];
+                        const {icon, name} = element //deconstruct them into values you want to pass as key and value pairs to be sent to the dom
+                        key.push(`<a href=${icon} target="_blank"><img src=${icon}  alt="mini icon" height="30px" width="30px"></a>`);
+                        value.push(name) 
+                    }
+                break;
+
+                case "account/dyes":
+                    if(result.length < 200){  
+                        data = await fetchRequest(resultValues, "https://api.guildwars2.com/v2/colors?ids=", accessToken)
+                    } else { 
+                        data = await makeNestedArray(resultValues,"https://api.guildwars2.com/v2/colors?ids=", accessToken);
+                    }
+                    for (let i = 0; i < data.length; i++) {
+                        const element = data[i];
+                        const {name, categories} = element;
+                        console.log(name, categories);
+                        key.push(categories);
+                        value.push(name);
+                    }
+                break;
+
+                case "account/inventory":
+                    console.log(result);
+                    for (let i = 0; i < result.length; i++) {
+                        const element = result[i];
+                        const {id} = element;
+                        value.push(id);
+                        console.log(id);
+                    }
+                    if(result.length < 200){      
+                        data = await fetchRequest(value, "https://api.guildwars2.com/v2/items?ids=", accessToken)
+                        console.log(data);
+                    } else { //if the API key has more values than 200 we run this and then remove them from the original list
+                        data = await makeNestedArray(value,"https://api.guildwars2.com/v2/items?ids=", accessToken);        
+                    }
+                    value = [];
+                    for (let i = 0; i < data.length; i++) {
+                        const element = data[i];
+                        element
+                        if (element.description) {
+                            var {icon, name, description} = element;                            
+                        } else {
+                            var {icon, name} = element;
+                            var {description} = element.details;
+                        }
+                        key.push([`<img src=${icon}><br/> <p>${description}</p>`]);
+                        value.push(name);
+                    }
+                break;
+                case "account/emotes":
+                        value = Object.values(result);                            
+                    break;
+                default: 
+                    data = resultEntries;
+                    key= Object.keys(result);
+                    value = Object.values(result);
+                break;
+            }
+
+            //using dataFound as a matching value to check whether the fetch was successful or not. If so, we can make pages and paginate, using the data we fetched
+            if (dataFound) {
+                if (result.length === 0 || resultEntries === null || resultEntries === undefined) {  //if the results are empty, I don't want to make any pages
+                    await paginate(data, pagination, itemsPerPage, key, value);                                         //and I want to reset old pages
+                }else {
+                    await paginate(data, pagination, itemsPerPage, key, value);
+                    await makePages(resultsDiv, currentPage, itemsPerPage, key, value); 
+                }   
+            }
+
             if(response.status === 503){ //if an endpoint is unavailable throw an error
              throw new Error("This API endpoint is not available at the moment")
             }
@@ -187,72 +307,53 @@ const fetchData = async (key, searchParam) => {
     }
 }
 
-
-const parseData = async (key, searchParam, result) => {
-
-    let resultEntries = Object.entries(result);
-    let resultValues = Object.values(result);
-    resultsDiv.innerHTML = `<p>Here is your ${searchParam} info:</p>`
-
-    // possible solution for different parameter requirements -- not decided yet
-    switch (searchParam) {
-        // case "account/bank":
-        //`https://api.guildwars2.com/v2/items/${id}?access_token=${key}
-            // break;
-        // case "account/minis":
-        // https://api.guildwars2.com/v2/minis?ids=${resultValues}?access_token=${key}
-        //     break;
-            
-        case "account/dyes":
-                let dyes = [];
-                if(resultValues.length < 200){      //this api end point is limited to 200 calls in one go
-                    try{
-                        let dyeUrl = `https://api.guildwars2.com/v2/colors?ids=${resultValues}?access_token=${key}`
-                        let response = await fetch(dyeUrl);
-                        let data = await response.json();
-                        await makePages(data, resultsDiv, currentPage, itemsPerPage);
-                        await paginate(data, pagination, itemsPerPage); 
-                    } catch (err) {
-                        console.log(err);
-                    }
-                } else { //if the API key has more values than 200 we run this and then remove them from the original list
-                    let dyeData = [];
-                    while (resultValues.length > 0) {         
-                    dyes.push(resultValues.slice(0, 200))
-                    resultValues.splice(0,199);
-                } //now we can make separate api fetch calls limiting each call to 200 with the new nested arrays inside dyes
-                for (let i = 0; i < dyes.length; i++) { 
-                    const dyeUrl = `https://api.guildwars2.com/v2/colors?ids=${dyes[i]}?access_token=${key}`;
-                    try{
-                        let response = await fetch(dyeUrl)
-                    if (response.ok) {
-                        let data = await response.json();
-                        dyeData.push(data);
-                        await makePages(dyeData, resultsDiv, currentPage, itemsPerPage);
-                        await paginate(dyeData, pagination, itemsPerPage);
-                    } else {
-                        throw new Error("There was a problem with the query. Try again.")
-                    }
-                    } catch (err) {
-                        document.querySelector(".info").innerText = err;
-                    }
-                }
-                }
-            break;
-        case "account/inventory":
-            console.log(resultEntries);
-        break;
-        default: 
-            if (resultEntries.length === 0 || resultEntries === null || resultEntries === undefined) {  //if the results are empty, I don't want to make any pages
-                await paginate(resultEntries, pagination, itemsPerPage);                                //and I want to reset old pages
-            }else {
-                await makePages(resultEntries, resultsDiv, currentPage, itemsPerPage); 
-                await paginate(resultEntries, pagination, itemsPerPage);
-            }
-        break;
+let dataFound = true;
+/*Function that makes multiple api calls in succession for when the data is too much (more than 200) for a single api call.*/
+//result values must be an array of ids
+async function makeNestedArray(result, url, accessToken) {
+    let dataArray = [];
+    let nestedDataArray = [];
+    while (result.length > 0) {         
+        nestedDataArray.push(result.slice(0, 200))
+        result.splice(0,199);
     }
+    for (let i = 0; i < nestedDataArray.length; i++) { 
+        const dataUrl = `${url}${nestedDataArray[i]}?access_token=${accessToken}`;
+        try{
+            let response = await fetch(dataUrl)
+        if (response.ok) {
+            let data = await response.json();
+            dataFound = true;
+            dataArray.push(data);
+        } else {
+            dataFound = false;
+            throw new Error("There was a problem with the query.")
+        }
+        } catch (err) {
+            document.querySelector(".info").innerText = err;
+            console.log(err);
+        }
+    }
+    return dataArray.flat(); //return the nested arrays as a single array
 }
-
+//SOME VALUES ARE GOING MISSING
+async function fetchRequest(result, url, accessToken){ //for API calls that return less than 200 values.
+    let dataUrl = `${url}${result},?access_token=${accessToken}`
+    console.log(dataUrl);
+    try{
+        let response = await fetch(dataUrl);
+        if (response.ok) {
+            data = await response.json();
+            dataFound = true;
+        } else {
+            dataFound = false;
+            throw new Error("There was a problem with the query.");
+        }
+    } catch (err) {
+        console.log(err);
+    }
+    return data;
+}
 
 // Search for different parameters using the selections
 let searchButton = document.querySelector(".search-button");
@@ -260,9 +361,12 @@ searchButton.addEventListener("click", () => {
     if (!accessToken) {
         document.querySelector(".info").innerText = "Please save your API key"
     } else {
+        currentPage = 0;
         searchParam = document.querySelector("select").value;
         document.querySelector(".info").innerText = "";
-        fetchData(accessToken, searchParam).catch(() =>{
+        resultsDiv.innerText = "";
+        fetchInfo.innerText = "Fetching your data";
+        fetchData(accessToken).catch(() =>{
             document.querySelector(".info").innerText = "There was something wrong. Refresh";
         });
     }
@@ -285,7 +389,7 @@ apiKey.addEventListener("keypress", (event) =>{ //enable the user to hit enter t
         localStorage.setItem("accessToken", accessToken); //add the key locally
         apiKey.value = "";
         document.querySelector(".info").innerText = "Your API key is saved";
-        fetchData(accessToken, searchParam).catch(err =>{
+        fetchData(accessToken).catch(err =>{
             document.querySelector(".info").innerText = err;
         });
         };
@@ -296,7 +400,7 @@ saveButton.addEventListener("click", () => {
     apiKey.value = "";
     localStorage.setItem("accessToken", accessToken);
     document.querySelector(".info").innerText = "Your API key is saved";
-    fetchData(accessToken, searchParam).catch(err =>{
+    fetchData(accessToken).catch(err =>{
         document.querySelector(".info").innerText = "There was a problem";
         console.log(err);
     });
