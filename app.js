@@ -175,8 +175,9 @@ for (let i = 0; i < endpointArray.length; i++) {
 }
 
 // API CALL
-const fetchData = async (accessToken) => {
+const fetchData = async (searchParam, accessToken) => {
     title.innerText= `${searchParam}`;
+    currentPage = 0;
     try{
         let apiEndPoint= `https://api.guildwars2.com/v2/${searchParam}?access_token=${accessToken}`;
         if(!accessToken){
@@ -365,7 +366,7 @@ searchButton.addEventListener("click", () => {
         document.querySelector(".info").innerText = "";
         resultsDiv.innerText = "";
         fetchInfo.innerText = "Fetching your data";
-        fetchData(accessToken).catch(() =>{
+        fetchData(searchParam, accessToken).catch(() =>{
             document.querySelector(".info").innerText = "There was something wrong. Refresh";
         });
     }
@@ -388,7 +389,7 @@ apiKey.addEventListener("keypress", (event) =>{ //enable the user to hit enter t
         localStorage.setItem("accessToken", accessToken); //add the key locally
         apiKey.value = "";
         document.querySelector(".info").innerText = "Your API key is saved";
-        fetchData(accessToken).catch(err =>{
+        fetchData("account", accessToken).catch(err =>{
             document.querySelector(".info").innerText = err;
         });
         };
@@ -399,7 +400,7 @@ saveButton.addEventListener("click", () => {
     apiKey.value = "";
     localStorage.setItem("accessToken", accessToken);
     document.querySelector(".info").innerText = "Your API key is saved";
-    fetchData(accessToken).catch(err =>{
+    fetchData("account", accessToken).catch(err =>{
         document.querySelector(".info").innerText = "There was a problem";
         console.log(err);
     });
