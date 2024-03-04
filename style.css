@@ -124,6 +124,9 @@ a:hover{
     line-height: 1.3em;
     width: 90%;
     margin: 0 auto;
+    border-bottom: 1px solid rgb(182, 182, 182);
+    border-top: 1px solid rgb(182, 182, 182);
+
 }
 .results p{
 word-wrap: break-word;
@@ -133,6 +136,8 @@ word-wrap: break-word;
 .results div{
     margin: 10px auto;
 }
+
+
 
 @media screen and (min-width: 1000px) {
     body{
@@ -154,11 +159,18 @@ word-wrap: break-word;
     display: grid;
     grid-template-columns: repeat(2, 1fr);
     gap: 15px;
-    }
-    .results div{
-    border-bottom: 1px solid rgb(182, 182, 182);
+    text-align: left;
+
     }
     .results img{
     text-align: center;
+    }
+    .buildstorage{
+        text-align: left;
+        min-width: 300px;
+    }
+    .buildstorage p{
+        display: inline;
+        margin-left: 10px;
     }
 }

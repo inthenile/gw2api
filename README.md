@@ -10,12 +10,15 @@ The core features are going to be selecting an api endpoint from a dropdown list
 <br>
 Updates: <br>
 
-<strong>
+-Added account/achievements. <br>
+-Began working on account/buildstorage <br>
+<hr>
+
 -Added new pagination with previous and next buttons; and only a middle button that shows the current & max page values. Also added an inactive class to change the style to show that there are no more pages. <br>
 -Increased (re)usability by making two external functions: 1) fetchRequest(), which was three lines of code used multiple times so I externalised it; it is essentially a simple API fetch. 2) makeNestedArrays(),to make multiple api calls in succession and storing them in an array, for when the data from the account info was more than I could get with a single api call due to api limits. <br>
 -Refactored the switch statements to be much more readable and fewer lines of code. <br>
 
-</strong>
+
 -Fixed a bug where saving a new API key would give unexpected results when an option other than "account" was selected. <br>
 -Removed unnecessary functions/variables <br>
 -Added "account/dyes" functionality. <br>
@@ -33,6 +36,8 @@ Updates: <br>
 ### Functional endpoints:
 -account; <br>
 -account/bank; <br>
+-account/achievements; <br>
+-accounts/buildstorage;<br>
 -account/dyes; <br>
 -account/emotes <br>
 -account/inventory<br>
