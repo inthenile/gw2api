@@ -77,19 +77,32 @@ let maxPage = 1; //initial value; changes dynamically
 
 //create pages to be displayed each time on a certain page
 let title = document.querySelector(".title");
-let key = [];
-let value = [];
 
-const makePages = async (wrapper, pageNum, perPage, key, value) => {
+const makePages = async (wrapper, pageNum, perPage, data) => {
     fetchInfo.innerText = "";
     wrapper.innerText = "";
     let startPos = pageNum * perPage;
     let endPos =  startPos + perPage;
-    if (key) {
-        var keysShown =  key.slice(startPos, endPos);
-    }
-    let valuesShown = value.slice(startPos, endPos)
     
+    //data[0] represents keys, data[1] represents values. Can also pass other parameters as arrays in the next indices, for example count or description can be passed as 
+    //arrays into data and be found in data[2] and be reflected onto the DOM etc.
+    let dataArray = []
+    for (let i = 0; i < data.length; i++) {
+        dataArray[i] = data[i].slice(startPos, endPos);
+    }
+    console.log(dataArray);
+    //if there are key-value pairs, display them 
+    for (let i = 0; i < dataArray[1].length; i++) {
+            key = dataArray[0][i]    
+            value = dataArray[1][i];
+            let extra;
+            dataArray[2] ? extra = dataArray[2][i] : "";
+            let div = document.createElement("div");
+            //Whether there is keys to the values or not, You show up index numbers for the items or the keys themselves
+            div.innerHTML = `${!key?(startPos+i+1)+"-" : ""} ${key ? key  : ""} <p style="font-weight: bold">${value}</p> ${extra}`;
+            wrapper.appendChild(div);
+        }
+          
     let pageNumButton = document.querySelector(".page-number");
     let prevButton = document.querySelector(".prev-button");
     let nextButton = document.querySelector(".next-button");
@@ -101,44 +114,25 @@ const makePages = async (wrapper, pageNum, perPage, key, value) => {
     //Change highlighting of buttons depending on whether there are no more pages left
     pageNum+1 === maxPage ? nextButton.classList.add("inactive") : nextButton.classList.remove("inactive");
     pageNum+1 === 1 ? prevButton.classList.add("inactive") : prevButton.classList.remove("inactive");
-
-    //if there are key-value pairs, display them 
-    if(value){
-    for (let i = 0; i < valuesShown.length; i++) {
-        if (keysShown) {
-            key = keysShown[i]    
-        }
-            value = valuesShown[i];
-            let div = document.createElement("div");
-            //Whether there is keys to the values or not, You show up index numbers for the items or the keys themselves
-            div.innerHTML = `${!key?(startPos+i+1)+"-" : ""} ${key ? key  : ""} <p style="font-weight: bold">${value}</p>`;
-            wrapper.appendChild(div);
-        }
-    }
 }
 
-const paginate = async (data, wrapper, perPage, key, value) => {
+const paginate = async (data, wrapper, perPage) => {
     wrapper.innerHTML = "";
+    console.log(data);
     if(data === null || data.length === 0 || data === undefined){   
         fetchInfo.innerHTML = `<p> NOTHING TO SHOW HERE </p>`;
-    }else if(typeof data[0][0] !== "object" || typeof data[0]!=="object"){
-        maxPage = Math.ceil(data.length / perPage);                 //This is problematic with returned data values that contain nested arrays, which, when deconstructe
-                                                                    //return much more elements than their nested array length; that's why I need to check the typeof 
-                                                                    //the data as well to determine whether its a nested array or not. Then I can flatten the nested arrays
-                                                                    //to get their actual length and calculate page numbers thus
-    } else if(typeof data[0][0] === "object" || typeof data[0]==="object"){ 
-        let flattenedData = data.flat();
-        maxPage = Math.ceil(flattenedData.length / perPage);
-    }                                                                    
+    }else{
+        maxPage = Math.ceil(data[1].length / perPage);
+    }                             
     
     for(let i = 0; i < 3; i++){
-        let buttons = await makeButtons(maxPage, key, value)
+        let buttons = await makeButtons(maxPage, data)
         wrapper.appendChild(buttons[i])
     }
 }
 
 //create page buttons
-const makeButtons = async (maxPage, key, value) => { 
+const makeButtons = async (maxPage, data) => { 
     let prevButton = document.createElement("button");        
     prevButton.classList.add("prev-button")
     let nextButton = document.createElement("button");
@@ -152,19 +146,18 @@ const makeButtons = async (maxPage, key, value) => {
     nextButton.addEventListener("click", () =>{
         if(currentPage+1 < maxPage){
             currentPage++;        
-            makePages(resultsDiv, currentPage, itemsPerPage, key, value);
+            makePages(resultsDiv, currentPage, itemsPerPage, data);
         } 
     })
 
     prevButton.addEventListener("click", () => {
         if(currentPage !== 0){
             currentPage--;
-            makePages(resultsDiv, currentPage,itemsPerPage, key, value);       
+            makePages(resultsDiv, currentPage,itemsPerPage, data);       
         }
     }) 
     return [prevButton, button, nextButton];
 }
-
 
 //Create options to be selected using the endpointArray
 for (let i = 0; i < endpointArray.length; i++) {
@@ -175,7 +168,8 @@ for (let i = 0; i < endpointArray.length; i++) {
     document.querySelector("select").appendChild(optionEle);
 }
 
-// API CALL
+//This function is called for the initial API calls. The results of which are generally IDs of items or skills and so forth. In order to retrieve the actual information of those IDs
+//Secondary API calls must be made to the specific API endpoints, and the results for those must be handled individually. Those secondary API calls take place in handleSearchParam();
 const fetchData = async (searchParam, accessToken) => {
     resultTitle.innerText = "";
     title.innerText= `${searchParam}`;
@@ -187,185 +181,16 @@ const fetchData = async (searchParam, accessToken) => {
         } else {
             let response = await fetch(apiEndPoint);
             let result = await response.json();
-            data=[];
-            key = [];//emptying these values before filling them up with new data
-            value = [];
-
-            //NEED TO PASS AN ARRAY OF IDS AS THE FIRST ARGUMENT
-            switch (searchParam) { //these switch statements can be used to return key and value pairs as desired.
-                case "account/bank":
-                    for (let i = 0; i < result.length; i++) {  //THIS FOR LOOP IS USED MORE OR LESS IN THE SAME MANNER FOR MOST ENDPOINTS
-                        const item = result[i];                //MIGHT TURN IT INTO A FUNCTION 
-                        if (item !== null) {
-                            var {id} = item;
-                            value.push(id);
-                        }
-                    }
-                    if(value.length < 200){      //all api end points are limited to 200 
-                        data = await fetchRequest(value,"https://api.guildwars2.com/v2/items?ids=", accessToken)
-                    } else {
-                        data = await makeNestedArray(value,"https://api.guildwars2.com/v2/items?ids=", accessToken);  
-                    }
-                    
-                    value.length = 0;
-                    for (let i = 0; i < data.length; i++) {
-                        const {icon, name} = data[i];
-                        key.push(`<a href=${icon} target="_blank"><img src=${icon}  alt="mini icon" height="30px" width="30px"></a>`)
-                        value.push(name);
-                    }
-                    resultTitle.innerText = "These items are currently in your bank."
-
-                break;
-
-                case "account/minis":
-                    if(result.length < 200){     
-                        data = await fetchRequest(result, "https://api.guildwars2.com/v2/minis?ids=", accessToken)
-                    } else {
-                        data = await makeNestedArray(result,"https://api.guildwars2.com/v2/minis?ids=", accessToken); 
-                    }
-                    console.log(data.length);
-                    for (let i = 0; i < data.length; i++) {
-                        const element = data[i];
-                        const {icon, name} = element //deconstruct them into values you want to pass as key and value pairs to be sent to the dom
-                        key.push(`<a href=${icon} target="_blank"><img src=${icon}  alt="mini icon" height="30px" width="30px"></a>`);
-                        value.push(name) 
-                    }
-                    resultTitle.innerText = "Here are the minis you have unlocked"
-                break;
-
-                case "account/dyes":
-                    if(result.length < 200){  
-                        data = await fetchRequest(result, "https://api.guildwars2.com/v2/colors?ids=", accessToken)
-                    } else { 
-                        data = await makeNestedArray(result,"https://api.guildwars2.com/v2/colors?ids=", accessToken);
-                    }
-                    for (let i = 0; i < data.length; i++) {
-                        const element = data[i];
-                        const {name, categories} = element;
-                        key.push(categories);
-                        value.push(name);
-                    }
-                    resultTitle.innerText = "Your unlocked dyes are:"
-                break;
-
-                case "account/inventory":
-                    console.log(result);
-                    for (let i = 0; i < result.length; i++) {
-                        const element = result[i];
-                        const {id} = element;
-                        value.push(id);
-                        console.log(element);
-                    }
-                    if(result.length < 200){      
-                        data = await fetchRequest(value, "https://api.guildwars2.com/v2/items?ids=", accessToken)
-                    } else { //if the API key has more values than 200 we run this and then remove them from the original list
-                        data = await makeNestedArray(value,"https://api.guildwars2.com/v2/items?ids=", accessToken);        
-                    }
-                    value = [];
-                    
-                    for (let i = 0; i < data.length; i++) {
-                        const element = data[i];
-                        if (element.description) {
-                            let {icon, name, description} = element;        
-                            key.push([`<a href=${icon} target="_blank"><img src=${icon} alt="mini icon" height="30px" width="30px"></a> <br/> <p>${description}</p>`]);
-                            value.push(name);                    
-                        } else {
-                            let {icon, name} = element;
-                            let {description} = element.details;
-                            key.push([`<a href=${icon} target="_blank"><img src=${icon} alt="mini icon" height="30px" width="30px"></a> <br/> <p>${description}</p>`]);
-                            value.push(name);
-                        }
-                    resultTitle.innerText = "These items are currently in your shared inventory."
-                    }
-                break;
-                case "account/emotes":
-                        value = Object.values(result);                            
-                        resultTitle.innerText = "You have unlocked the following emotes."
-                    break;
-                case "account/achievements":
-                    resultTitle.innerText = "This might take a while depending on the number of achievements you have completed."
-                    for (let i = 0; i < result.length; i++) {
-                        const element = result[i];
-                        const{id} = element;
-                        value.push(id);
-                    }
-                    if (result.length < 200) {
-                        data = await fetchRequest(value, "https://api.guildwars2.com/v2/achievements?ids=", accessToken)
-                    } else {
-                        data = await makeNestedArray(value, "https://api.guildwars2.com/v2/achievements?ids=", accessToken)
-                    }
-                    value = [];
-                    console.log(data);
-                    for (let i = 0; i < data.length; i++) {
-                        const element = data[i];
-                        const{description, name, requirement} = element;
-                        key.push(`${name} <br> ${description}`);
-                        value.push(requirement);
-                    }
-                    resultTitle.innerText = "Here are the achievements you have completed."
-                    break;
-                  
-                case "account/buildstorage":
-                    let skillsArray = []; //store skills found in the builds
-                    for (let i =1;  i <= result.length; i++) { //buildstorage endpoints start at 1
-                        let response = await fetchRequest(i, `https://api.guildwars2.com/v2/account/buildstorage/`, accessToken);
-                        let {name, profession,specializations, skills} = response;
-                        skillsArray.push(skills);
-                        let specs = specializations.map((trait) => {
-                            return trait.id;
-                        })
-                        let traits = specializations.map((trait) =>{
-                            return trait.traits;
-                        })
-
-                        let fetchRes = await fetch(`https://api.guildwars2.com/v2/specializations?ids=${specs}`);
-                        let fetchData = await fetchRes.json();
-                        let specNames = await fetchData.map((spec) =>{
-                            return spec.name;
-                        })
-                        console.log(specNames);
-                        
-                        let fetchRes2 = await fetch(`https://api.guildwars2.com/v2/traits?ids=${traits}`);
-                        let fetchData2 = await fetchRes2.json();
-                        let traitNames = await fetchData2.map((trait) =>{
-                            return trait.name;
-                        })
-                        console.log(traitNames);
-                        key.push(`${[name, profession]}<br><p>Traits lines:${specNames}</p><br><p>Traits:${traitNames}<p>`);
-                    }
-                    for (let i = 0; i < skillsArray.length; i++) {
-                        const element = skillsArray[i];
-                        console.log(element);
-                        const {heal, utilities, elite} = element;
-                        //I HAVE TO FETCH MANUALLY HERE BECAUSE OF GW2 API REFUSES TO WORK PROPERLY WITHOUT A COMMA AT THE END SOMETIMES
-                        //THE SAME CODE WILL YIELD 3 VALUES INSTEAD OF 4 WITHOUT THE COMMA BEFORE ?access_token
-                        let response = await fetch(`https://api.guildwars2.com/v2/skills?ids=${[heal, utilities, elite].flat()},?access_token=${accessToken}`)
-                        data = await response.json();
-                        const skills = data.map((skill) => {
-                            return [`<div class="buildstorage"><img src=${skill.icon} height="30px" width="30px"><p>${[skill.name].join("")}</p></div>`];
-                        }); //ENGINER MORTAR ELITE KIT SEEMS BUGGED? IT DOESNT SHOW UP WHEREAS EVERY OTHER ENGINEER ELITE SEEMS OK
-                        value.push(skills)
-                    }                   
-                    dataFound = false; //I want to call paginate and makepages manually for this endpoint
-                    await paginate(skillsArray, pagination, itemsPerPage, key);
-                    await makePages(resultsDiv, currentPage, itemsPerPage, key, value);
-                    resultTitle.innerText = "Here are your builds saved in your build storage"
-                    break;
-
-                default: 
-                    data = Object.entries(result);
-                    key= Object.keys(result);
-                    value = Object.values(result);
-                    break;
-            }
+            
+            let data = await handleSearchParam(result, searchParam, accessToken);
 
             //using dataFound as a matching value to check whether the fetch was successful or not. If so, we can make pages and paginate, using the data we fetched
             if (dataFound) {
-                if (value.length === 0 || data === null || data === undefined) {        //if the results are empty, I don't want to make any pages
-                    await paginate(value, pagination, itemsPerPage, key, value);        //and I want to reset old pages
+                if (data[1].length === 0 || data === null || data === undefined) {        //if the results are empty, I don't want to make any pages
+                    await paginate(data, pagination, itemsPerPage);                       //and I want to reset old pages
                 }else {
-                    await paginate(value, pagination, itemsPerPage, key, value);
-                    await makePages(resultsDiv, currentPage, itemsPerPage, key, value); 
+                    await paginate(data, pagination, itemsPerPage);
+                    await makePages(resultsDiv, currentPage, itemsPerPage, data); 
                 }   
             }
 
@@ -395,8 +220,6 @@ async function makeNestedArray(result, url, accessToken) {
     }
     for (let i = 0; i < nestedDataArray.length; i++) { 
         const dataUrl = `${url}${nestedDataArray[i]}?access_token=${accessToken}`;
-        console.log(dataUrl);
-
         try{
             let response = await fetch(dataUrl)
         if (response.ok) {
@@ -496,3 +319,184 @@ saveButton.addEventListener("click", () => {
     });
 })
 
+//API CALLS: secondary API calls. Result is the result from the initial API call.
+const handleSearchParam = async (result, searchParam, accessToken) =>{
+    let key = [];
+    let value = [];
+    let data = [key, value];
+
+        //NEED TO PASS AN ARRAY OF IDS AS THE FIRST ARGUMENT
+        switch (searchParam) { //these switch statements can be used to return key and value pairs as desired.
+
+            case "account/bank":
+                for (let i = 0; i < result.length; i++) {  //THIS FOR LOOP IS USED MORE OR LESS IN THE SAME MANNER FOR MOST ENDPOINTS
+                    const item = result[i];                //MIGHT TURN IT INTO A FUNCTION 
+                    if (item !== null) {
+                        var {id} = item;
+                        value.push(id);
+                    }
+                }
+                if(value.length < 200){      //all api end points are limited to 200 
+                    response = await fetchRequest(value,"https://api.guildwars2.com/v2/items?ids=", accessToken)
+                } else {
+                    response = await makeNestedArray(value,"https://api.guildwars2.com/v2/items?ids=", accessToken);  
+                }
+                
+                value.length = 0;
+                for (let i = 0; i < response.length; i++) {
+                    const {icon, name} = response[i];
+                    key.push(`<a href=${icon} target="_blank"><img src=${icon}  alt="mini icon" height="30px" width="30px"></a>`)
+                    value.push(name);
+                }
+                resultTitle.innerText = "These items are currently in your bank."
+            break;
+
+            case "account/minis":
+                if(result.length < 200){     
+                    response = await fetchRequest(result, "https://api.guildwars2.com/v2/minis?ids=", accessToken)
+                } else {
+                    response = await makeNestedArray(result,"https://api.guildwars2.com/v2/minis?ids=", accessToken); 
+                }
+                for (let i = 0; i < response.length; i++) {
+                    const element = response[i];
+                    const {icon, name} = element //deconstruct them into values you want to pass as key and value pairs to be sent to the dom
+                    key.push(`<a href=${icon} target="_blank"><img src=${icon}  alt="mini icon" height="30px" width="30px"></a>`);
+                    value.push(name);
+                }
+                resultTitle.innerText = "Here are the minis you have unlocked"
+            break;
+
+            case "account/dyes":
+                if(result.length < 200){  
+                    response = await fetchRequest(result, "https://api.guildwars2.com/v2/colors?ids=", accessToken)
+                } else { 
+                    response = await makeNestedArray(result,"https://api.guildwars2.com/v2/colors?ids=", accessToken);
+                }
+                let dyeIds = [];
+                for (let i = 0; i < response.length; i++) {
+                    const element = response[i];
+                    let {name, categories, item} = element;//unfortunately some dye's do not have item property, which return undefined. That is why currently not all elements have a corresponding icon
+                    
+                    dyeIds.push(item);
+                    key.push(`<div>${categories}</div>`);
+                    value.push(name);
+                }
+                let dyeData = await makeNestedArray(dyeIds,"https://api.guildwars2.com/v2/items?ids=", accessToken);
+                let dyeIcon = dyeData.map((data) => `<img class="dye-icon" src=${data.icon} heigh="30" width="30">`);
+                data=[key,value, dyeIcon]
+
+                resultTitle.innerText = "Your unlocked dyes are:"
+            break;
+
+            case "account/inventory":
+                for (let i = 0; i < result.length; i++) {
+                    const element = result[i];
+                    const {id} = element;
+                    value.push(id);
+                    console.log(element);
+                }
+                if(result.length < 200){      
+                    response = await fetchRequest(value, "https://api.guildwars2.com/v2/items?ids=", accessToken)
+                } else { //if the API key has more values than 200 we run this and then remove them from the original list
+                    response = await makeNestedArray(value,"https://api.guildwars2.com/v2/items?ids=", accessToken);        
+                }
+                value = [];
+                
+                for (let i = 0; i < response.length; i++) {
+                    const element = response[i];
+                    if (element.description) {
+                        let {icon, name, description} = element;        
+                        key.push([`<a href=${icon} target="_blank"><img src=${icon} alt="mini icon" height="30px" width="30px"></a> <br/> <p>${description}</p>`]);
+                        value.push(name);                    
+                    } else {
+                        let {icon, name} = element;
+                        let {description} = element.details;
+                        key.push([`<a href=${icon} target="_blank"><img src=${icon} alt="mini icon" height="30px" width="30px"></a> <br/> <p>${description}</p>`]);
+                        value.push(name);
+                    }
+                resultTitle.innerText = "These items are currently in your shared inventory."
+                }
+            break;
+            case "account/emotes":
+                    value = Object.values(result);                            
+                    resultTitle.innerText = "You have unlocked the following emotes."
+                break;
+            case "account/achievements":
+                resultTitle.innerText = "This might take a while depending on the number of achievements you have completed."
+                let arr = [];
+                for (let i = 0; i < result.length; i++) {
+                    const element = result[i];
+                    const{id} = element;
+                    arr.push(id);
+                }
+                if (result.length < 200) {
+                    response = await fetchRequest(arr, "https://api.guildwars2.com/v2/achievements?ids=", accessToken)
+                } else {
+                    response = await makeNestedArray(arr, "https://api.guildwars2.com/v2/achievements?ids=", accessToken)
+                }
+                for (let i = 0; i < response.length; i++) {
+                    const element = response[i];
+                    const{description, name, requirement} = element;
+                    key.push(`${name} <br> ${description}`);
+                    value.push(requirement);
+                }
+                resultTitle.innerText = "Here are the achievements you have completed."
+                break;
+                
+            case "account/buildstorage":
+                let skillsArray = []; //store skills found in the builds
+                for (let i =1;  i <= result.length; i++) { //buildstorage endpoints start at 1
+                    let response = await fetchRequest(i, `https://api.guildwars2.com/v2/account/buildstorage/`, accessToken);
+                    let {name, profession,specializations, skills} = response;
+                    skillsArray.push(skills);
+                    let specs = specializations.map((trait) => {
+                        return trait.id;
+                    })
+                    let traits = specializations.map((trait) =>{
+                        return trait.traits;
+                    })
+
+                    let fetchRes = await fetch(`https://api.guildwars2.com/v2/specializations?ids=${specs}`);
+                    let fetchData = await fetchRes.json();
+                    let specNames = await fetchData.map((spec) =>{
+                        return spec.name;
+                    })
+                    
+                    let fetchRes2 = await fetch(`https://api.guildwars2.com/v2/traits?ids=${traits}`);
+                    let fetchData2 = await fetchRes2.json();
+                    let traitNames = await fetchData2.map((trait) =>{
+                        return trait.name;
+                    })
+                    key.push(`${[name, profession]}<br><p>Traits lines:${specNames}</p><br><p>Traits:${traitNames}<p>`);
+                }
+                for (let i = 0; i < skillsArray.length; i++) {
+                    const element = skillsArray[i];
+                    const {heal, utilities, elite} = element;
+                    //I HAVE TO FETCH MANUALLY HERE BECAUSE OF GW2 API REFUSES TO WORK PROPERLY WITHOUT A COMMA AT THE END SOMETIMES
+                    //THE SAME CODE WILL YIELD 3 VALUES INSTEAD OF 4 WITHOUT THE COMMA BEFORE ?access_token
+                    let response = await fetch(`https://api.guildwars2.com/v2/skills?ids=${[heal, utilities, elite].flat()},?access_token=${accessToken}`)
+                    response = await response.json();
+                    const skills = response.map((skill) => {
+                        return [`<div class="buildstorage"><img src=${skill.icon} height="30px" width="30px"><p>${[skill.name].join("")}</p></div>`];
+                    }); //ENGINER MORTAR ELITE KIT SEEMS BUGGED? IT DOESNT SHOW UP WHEREAS EVERY OTHER ENGINEER ELITE SEEMS OK
+                    value.push(skills)
+                }                   
+                dataFound = false; //I want to call paginate and makepages manually for this endpoint
+                data = [key, value];
+                console.log(data);
+                await paginate(data, pagination, itemsPerPage);
+                await makePages(resultsDiv, currentPage, itemsPerPage, data);
+                resultTitle.innerText = "Here are your builds saved in your build storage"
+                break;
+
+            default: 
+                key= Object.keys(result);
+                value = Object.values(result);
+                break;
+        }
+        if(data.length <= 2){   //Here I check if one of the searchParam switch cases added another array into data. If there are 3 or more arrays, I don't overwrite it. 
+            data = [key, value] //Otherwise, I provide a default value here.
+        }
+        return data;
+
+}

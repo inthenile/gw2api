@@ -130,14 +130,15 @@ a:hover{
 }
 .results p{
 word-wrap: break-word;
-
+display: inline-block;
 }
 
 .results div{
     margin: 10px auto;
 }
 
-
+.dye-icon{
+}
 
 @media screen and (min-width: 1000px) {
     body{
@@ -159,7 +160,6 @@ word-wrap: break-word;
     display: grid;
     grid-template-columns: repeat(2, 1fr);
     gap: 15px;
-    text-align: left;
 
     }
     .results img{
@@ -172,5 +172,6 @@ word-wrap: break-word;
     .buildstorage p{
         display: inline;
         margin-left: 10px;
+        text-align: left;
     }
 }
