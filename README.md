@@ -1,10 +1,10 @@
 
 ## Guild Wars 2 API
 
-[Updates](#updates)
-[Known bugs](#known-bugs)
-[Todos](#to-dos)
-[Functional endpoints](#functional-endpoints)
+[Updates](#updates)<br>
+[Known bugs](#known-bugs)<br>
+[Todos](#to-dos)<br>
+[Functional endpoints](#functional-endpoints)<br>
 
   
 <strong>Initial idea</strong>💡 <br>
