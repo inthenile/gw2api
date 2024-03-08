@@ -1,5 +1,5 @@
 
-## Guild Wars 2 API
+## Guild Wars 2 API made with Vanilla JavaScript
 
 [Updates](#updates)<br>
 [Known bugs](#known-bugs)<br>
@@ -20,13 +20,7 @@ The user can then select whatever endpoint they want to use and see information 
 
 I have used the authenticated endpoint as listed at <a  href="https://wiki.guildwars2.com/wiki/API:API_key"> Guild Wars 2 Wiki's API page</a>, there are others, which I might add later.
 
-  
-
-I did not make any front end design for this; this is simply for fetch API practices without worrying about the design, at least not initially.
-
-  
-
-The core features are going to be selecting an api endpoint from a dropdown list and being able to make searches. I am implementing pagination again to practice it more.
+This is simply for fetch API practices without worrying about the front-end design. The core features are going to be selecting an api endpoint from a dropdown list and being able to make searches. There is essentially no HTML elements that display any information, and no pages. It is a dynamic page in which the elements change based on the selection of the user. I have implemented pagination again to practice it more.
 
 <br>
 
