@@ -62,8 +62,9 @@ I realised I was being incredibly inefficient by passing keys and values separat
 
 # To-do(s)
 
--Finish reefactoring the switch statements into their own functions.
+
 -Fix other endpoints (bank, materials etc.).
+<strong>-Change it so that not all data is fetched immediately; data should be fetched and saved when user flips through pages? Make the initial fetch request and get the length of the result; then call pagination and makePage; only then call each fetch request as the user clicks next button? Save the results that have already been fetched so they don't have to be fetched each time the page is visited after the initial request.</strong>
 -Maybe add a way to add multiple API's and switch between them? (unsure)
 -Other pages? More detailed information in a given endpoints?
 -Revisit styling

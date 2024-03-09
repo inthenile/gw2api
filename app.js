@@ -271,6 +271,7 @@ const fetchData = async (searchParam, accessToken) => {
             searchButton.classList.remove("hidden");
         } else {
             let response = await fetch(apiEndPoint, {signal});
+            console.log(response);
             if(response.status === 503){ //if an endpoint is unavailable throw an error
                 throw new Error("This API endpoint is not available at the moment")
                }
@@ -283,6 +284,7 @@ const fetchData = async (searchParam, accessToken) => {
             }
 
             let result = await response.json();
+            console.log(result);
             let data = await handleSearchParam(result, searchParam, {signal});
 
             //using dataFound as a matching value to check whether the fetch was successful or not. If so, we can make pages and paginate, using the data we fetched
