@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>GW2 API</title>
     <link rel="stylesheet" href="style.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
 </head>
     <body>
         <nav>
@@ -19,16 +20,27 @@
                 <button class="save-button">Save / Reset</button>
             </div>
             <div class="selection">
-            <select>
-            </select>
-            <br/>
-            <button class="search-button">Search</button></div>
+                <select>
+                    <!--SELECT OPTIONS, LIKE OTHER ELEMENTS, ARE GENERATED USING JAVASCRIPT-->
+                </select>
+                <br>
+                <button class="search-button">Search</button>
+                <button class="cancel-button hidden">Cancel</button>
+            </div>
+            <h2  class="title"> <!-- THE ACTUAL TITLE OF THE SEARCH PARAM. --></h2>
 
-            <h2  class="title"></h2>
-            <div class="fetch-info"></div>
-            <div class="result-title" style="text-align: center;"></div>
-            <div class="results"></div>
-            <div class="pagination"></div>
+            <div class="fetch-info">
+                <!--INFO ABOUT FETCH IS GIVEN HERE-->
+            </div>
+            <div class="result-title" style="text-align: center;">
+                <!--THIS IS WHERE EXTRA INFO SUCH AS "These items are currently in your bank" ETC. IS FOUND-->
+            </div>
+            <div class="results">
+                <!--RESULTS ARE RENDERED HERE-->
+            </div>
+            <div class="pagination">
+                <!--PAGES ARE RENDERED HERE-->
+            </div>
         </div>
         <footer>
             <div>
@@ -36,5 +48,18 @@
             </div>
         </footer>
     </body>
+
 <script src="app.js"></script>
+<script> 
+    $(document).ready(function(){
+        $(".search-button").click(function(){
+            $(this).toggleClass("hidden");
+            $(".cancel-button").toggleClass("hidden");
+        });
+        $(".cancel-button").click(function(){
+            $(this).toggleClass("hidden");
+            $(".search-button").toggleClass("hidden");
+        });
+    });
+</script>
 </html>

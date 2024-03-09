@@ -48,13 +48,21 @@ padding-bottom:  20px;
     padding: 5px;
 }
 
-.save-button, .search-button{
+.save-button, .search-button, .cancel-button{
+display: block;
+margin: 20px auto;
 background-color: var(--section-color);
 color: white;
 border: none;
 border-radius: 100svh;
 height: 25px;
 }
+
+.save-button{display: inline-block;}
+.cancel-button{background-color: red;}
+.cancel-button:hover{cursor: pointer;}
+.hidden{display: none;}
+
 .selection{
     margin-top: 20px;
 }
@@ -70,6 +78,9 @@ input{
     background-color:rgb(245, 245, 245);;
     cursor: pointer;
     border-bottom: 1px solid var(--section-color);
+}
+.cancel:hover{
+    color: red;
 }
 .prev-button, .next-button{
     background-color: var(--section-color);
@@ -137,8 +148,6 @@ display: inline-block;
     margin: 10px auto;
 }
 
-.dye-icon{
-}
 
 @media screen and (min-width: 1000px) {
     body{

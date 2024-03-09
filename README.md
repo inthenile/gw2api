@@ -25,12 +25,18 @@ This is simply for fetch API practices without worrying about the front-end desi
 <br>
 
   
-
 # Updates
+
+Added an abort controller to be able to cancel a search, stopping the fetch request, and make a new one, with the help of a cancel button that appears when a fetch request is going on. It does not look elegant, since I have numerous fetch requests going on. yet it works. Maybe I can work on it in the future, yet right now the functionality is there, and that's the most important thing.
+<br>
+Refactored the code blocks inside the switch statement into their own functions. This is how I will implement the future fetch requests.
+<br>
+Handled some errors when the user entered an invalid API key.
+
+<hr>
 
 I realised I was being incredibly inefficient by passing keys and values separately to functions; so instead I passed keys and values to data; and then deconstructed data where it was needed. This meant that I could also pass other values into data and use them if I wanted to. So I changed all individual key/value variables to be stored in a data variable as arrays. I also removed the switch statement into its own function, as it was doing another task. Essentially, the initial fetchData is getting the first set of results which are a bunch of IDs that belong to skills or items or so forth. And handleSearchParam() function handles these IDs appropriately as each searchParam require different handling.
 
-<hr>
 
 -Added account/achievements and account/buildstorage <br>
 -Added new pagination with previous and next buttons; and only a middle button that shows the current & max page values. Also added an inactive class to change the style to show that there are no more pages. <br>
@@ -56,9 +62,11 @@ I realised I was being incredibly inefficient by passing keys and values separat
 
 # To-do(s)
 
--add abort controller to abort an api call if its unfinished when you select another searchParam?
+-Finish reefactoring the switch statements into their own functions.
 -Fix other endpoints (bank, materials etc.).
 -Maybe add a way to add multiple API's and switch between them? (unsure)
+-Other pages? More detailed information in a given endpoints?
+-Revisit styling
 
   
 
