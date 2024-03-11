@@ -73,14 +73,14 @@ I realised I was being incredibly inefficient by passing keys and values separat
 
 # To-do(s)
 
--rewrite buildstorage to display only one build template at a time? maybe
--Revisit styling?
--add more information as key-value pairs to be displayed for specific endpoints (how many items are in the bank, shared inventory and so forth?)
-<s>-Maybe use a table instead of grids for results?</s>
--Fix other endpoints (bank, materials etc.).
-<s>-Change it so that not all data is fetched immediately; data should be fetched and saved when user flips through pages? Make the initial fetch request and get the length of the result; then call pagination and makePage; only then call each fetch request as the user clicks next button? Save the results that have already been fetched so they don't have to be fetched each time the page is visited after the initial request.</s>
--Maybe add a way to add multiple API's and switch between them? (unsure)
--Other pages? More detailed information in a given endpoints?
+-rewrite buildstorage to display only one build template at a time? maybe <br>
+-Revisit styling? <br>
+-add more information as key-value pairs to be displayed for specific endpoints (how many items are in the bank, shared inventory and so forth?) <br>
+<s>-Maybe use a table instead of grids for results?</s> <br>
+-Fix other endpoints (bank, materials etc.). <br>
+<s>-Change it so that not all data is fetched immediately; data should be fetched and saved when user flips through pages? Make the initial fetch request and get the length of the result; then call pagination and makePage; only then call each fetch request as the user clicks next button? Save the results that have already been fetched so they don't have to be fetched each time the page is visited after the initial request.</s> <br>
+-Maybe add a way to add multiple API's and switch between them? (unsure) <br>
+-Other pages? More detailed information in a given endpoints? <br>
 
   
 
