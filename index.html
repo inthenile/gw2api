@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>GW2 API</title>
     <link rel="stylesheet" href="style.css">
+    <link rel="shortcut icon" href="/img/favicon.ico" type="image/x-icon">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
 </head>
     <body>
@@ -38,9 +39,20 @@
             <div class="results">
                 <!--RESULTS ARE RENDERED HERE-->
             </div>
+            
+            <table class="results-table">
+                <thead>
+                    <tr>
+                        <th class="table-head hidden">RESULTS</th>     
+                    </tr>
+                </thead>
+            </table>
+
             <div class="pagination">
                 <!--PAGES ARE RENDERED HERE-->
             </div>
+            <h3 class="loading hidden" style="text-align: center;">LOADING YOUR DATA</h3>
+
         </div>
         <footer>
             <div>
@@ -53,12 +65,12 @@
 <script> 
     $(document).ready(function(){
         $(".search-button").click(function(){
-            $(this).toggleClass("hidden");
-            $(".cancel-button").toggleClass("hidden");
+            $(this).addClass("hidden");
+            $(".cancel-button").removeClass("hidden");
         });
         $(".cancel-button").click(function(){
-            $(this).toggleClass("hidden");
-            $(".search-button").toggleClass("hidden");
+            $(this).addClass("hidden");
+            $(".search-button").removeClass("hidden");
         });
     });
 </script>

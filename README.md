@@ -1,6 +1,7 @@
 
 ## Guild Wars 2 API made with Vanilla JavaScript
 
+[Run the code](#run-the-code)<br>
 [Updates](#updates)<br>
 [Known bugs](#known-bugs)<br>
 [Todos](#to-dos)<br>
@@ -24,16 +25,26 @@ This is simply for fetch API practices without worrying about the front-end desi
 
 <br>
 
+# Run the code
+```
+1- Clone the repository.
+2- Run the server locally (e.g. Live Server on VSCode)
+3- Get an API key from https://account.arena.net/ , give it the desired permissions (the results will be affected)
+4- Save your api key and use the search options!
+```
   
 # Updates
 
+I have made some major updates on how the data fetching works. Initially, the way I made fetches were in huge chunks; doing every fetch request that was necessary to display the information to the dom at once. Even if the user didn't go to the second page, the second page fetches were already frontloaded. This was incredibly slow, especially for achievements parameter, which can possibly have thousands of return values. As such, I changed the fetch logic to work with the page buttons. There is one initial fetch that is made for a search param that essentially calculates how many pages there must be, and does the fetch request for the first page. However, other fetch requests (for item name, description, icon and so forth), for other pages are not called until that specific page is clicked on. I then store these values in an array, so when the user goes back and forth to the pages he had already loaded, there won't be other fetch requests and they wil be loaded locally. This array is reset each time a new searchparameter is used.Lastly, added a table to display the results.
+
+
+<hr>
 Added an abort controller to be able to cancel a search, stopping the fetch request, and make a new one, with the help of a cancel button that appears when a fetch request is going on. It does not look elegant, since I have numerous fetch requests going on. yet it works. Maybe I can work on it in the future, yet right now the functionality is there, and that's the most important thing.
 <br>
 Refactored the code blocks inside the switch statement into their own functions. This is how I will implement the future fetch requests.
 <br>
 Handled some errors when the user entered an invalid API key.
 
-<hr>
 
 I realised I was being incredibly inefficient by passing keys and values separately to functions; so instead I passed keys and values to data; and then deconstructed data where it was needed. This meant that I could also pass other values into data and use them if I wanted to. So I changed all individual key/value variables to be stored in a data variable as arrays. I also removed the switch statement into its own function, as it was doing another task. Essentially, the initial fetchData is getting the first set of results which are a bunch of IDs that belong to skills or items or so forth. And handleSearchParam() function handles these IDs appropriately as each searchParam require different handling.
 
@@ -62,12 +73,14 @@ I realised I was being incredibly inefficient by passing keys and values separat
 
 # To-do(s)
 
-
+-rewrite buildstorage to display only one build template at a time? maybe
+-Revisit styling?
+-add more information as key-value pairs to be displayed for specific endpoints (how many items are in the bank, shared inventory and so forth?)
+<s>-Maybe use a table instead of grids for results?</s>
 -Fix other endpoints (bank, materials etc.).
-<strong>-Change it so that not all data is fetched immediately; data should be fetched and saved when user flips through pages? Make the initial fetch request and get the length of the result; then call pagination and makePage; only then call each fetch request as the user clicks next button? Save the results that have already been fetched so they don't have to be fetched each time the page is visited after the initial request.</strong>
+<s>-Change it so that not all data is fetched immediately; data should be fetched and saved when user flips through pages? Make the initial fetch request and get the length of the result; then call pagination and makePage; only then call each fetch request as the user clicks next button? Save the results that have already been fetched so they don't have to be fetched each time the page is visited after the initial request.</s>
 -Maybe add a way to add multiple API's and switch between them? (unsure)
 -Other pages? More detailed information in a given endpoints?
--Revisit styling
 
   
 
