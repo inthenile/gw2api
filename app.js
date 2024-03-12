@@ -101,10 +101,10 @@ searchButton.addEventListener("click", () => {
         searchButton.classList.toggle("hidden");
     } else {
         currentPage = 0;
+        document.querySelector(".loading").classList.add("hidden")
         pagination.classList.remove("hidden");
         searchParam = document.querySelector("select").value;
         document.querySelector(".info").innerText = "";
-        resultsDiv.innerText = "";
         fetchInfo.innerText = "Fetching your data";
         initialDataFetch(searchParam, accessToken).catch(() =>{
             document.querySelector(".info").innerText = "There was something wrong. Refresh";
@@ -119,7 +119,7 @@ cancelButton.addEventListener("click", () => {
         fetchInfo.innerText = "";
         resultTitle.innerText = "";
         title.innerText = "";
-        resultsDiv.innerText = "";
+        resultsTable.innerText = "";
         console.log("aborted!");
 });
 
@@ -134,7 +134,7 @@ const saveApiKey = () =>{
     if(accessToken){
         document.querySelector(".info").innerHTML = `<p>You are already logged in with ${accessToken.slice(1,15)}...</p>
                                                     <p>You can change this API by saving another.</p>
-                                                    <p>You can use the search function.</p>`;
+                                                    <p class="font-bold">You can now use the search function.</p>`;
     }
     
     apiKey.addEventListener("keypress", (event) =>{ //enable the user to hit enter to send their api key
@@ -202,9 +202,10 @@ const makePages = async (dataList, currentPage) => {
         //some basic display styling
         //essentially, if there are no key values, display index values multiplied by the page they are on; so it continues; if there are key values, display key values.
         //the first tertiary check also makes sure you still display the index numbeers even if there are key values.
-        result.push(`<tr><td> ${key[i] !==undefined ? `${i + (currentPage*10) + 1 } - ` : ""} ${key[i] !== undefined ?  key[i] : i + (currentPage*10) + 1 } -  ${value[i]} </td></tr>`);
+        result.push(`<tr class="even:bg-gray-300 mt=2"><td class="text-s"> ${key[i] !==undefined ? `${i + (currentPage*10) + 1 } - ` : ""} ${key[i] !== undefined ?  key[i] : i + (currentPage*10) + 1 } -  ${value[i]} </td></tr>`);
     }
     await checkButtonAvailability(maxPage, currentPage); //check whether there are more buttons to go back or forth
+    document.querySelector(".table-head").classList.remove("hidden");
     resultsTable.innerHTML = result.join("");
 
 }
@@ -229,7 +230,7 @@ const handleLoadedData = async (currentPage) => {
     const {key, value}= data;    
     result = [];
     for (let i = 0; i < key.length; i++) {
-        result.push(`<tr><td> ${key[i] !==undefined ? `${i + (currentPage*10) + 1 } - ` : ""} ${key[i] !== undefined ?  key[i] : i + (currentPage*10) + 1 } -  ${value[i]} </td></tr>`);
+        result.push(`<tr class="even:bg-gray-300 mt=2"><td> ${key[i] !==undefined ? `${i + (currentPage*10) + 1 } - ` : ""} ${key[i] !== undefined ?  key[i] : i + (currentPage*10) + 1 } -  ${value[i]} </td></tr>`);
     }
     resultsTable.innerHTML = result.join("");
     await checkButtonAvailability(maxPage, currentPage); //check whether there are more buttons to go back or forth
@@ -243,8 +244,8 @@ const checkButtonAvailability = async (maxPage, pageNum) =>{
     let nextButton = document.querySelector(".next-button");
     if(pageNumButton){pageNumButton.innerText = `${pageNum+1} of ${maxPage}`};
     //Change highlighting of buttons depending on whether there are no more pages left
-    pageNum+1 === maxPage ? nextButton.classList.add("inactive") : nextButton.classList.remove("inactive");
-    pageNum+1 === 1 ? prevButton.classList.add("inactive") : prevButton.classList.remove("inactive");
+    pageNum+1 === maxPage ? nextButton.setAttribute("disabled", true) : nextButton.removeAttribute("disabled");
+    pageNum+1 === 1 ? prevButton.setAttribute("disabled", true) : prevButton.removeAttribute("disabled");
     
     searchButton.classList.remove("hidden"); //disables the option to cancel the query once the page is loaded
     cancelButton.classList.add("hidden");
@@ -252,6 +253,7 @@ const checkButtonAvailability = async (maxPage, pageNum) =>{
 
 //buttons make fetch requests
 const buttonFetchRequest = async (currentPage, data, searchParam, {signal} = {}) =>{
+
     if(currentPage >= loadedData.length){
         pagination.classList.toggle("hidden")
         document.querySelector(".loading").classList.toggle("hidden")
@@ -267,10 +269,12 @@ const buttonFetchRequest = async (currentPage, data, searchParam, {signal} = {})
 
 //create page buttons
 const makeButtons = async (maxPage, data) => { 
-    let prevButton = document.createElement("button");        
-    prevButton.classList.add("prev-button")
+    let prevButton = document.createElement("button");     
+    prevButton.className = `prev-button rounded-lg  mr-2 m-auto mt-2 text-xs w-100 h-8 w-8 p-1 w-24 
+                            text-white bg-orange-300 enabled:hover:bg-orange-500 disabled:bg-orange-100`;   
     let nextButton = document.createElement("button");
-    nextButton.classList.add("next-button")
+    nextButton.className = `next-button rounded-lg ml-2 m-auto mt-2 text-xs w-100 h-8 p-1 w-8 
+                            text-white bg-orange-300 enabled:hover:bg-orange-500 disabled:bg-orange-100`;
     prevButton.innerText = "<";
     nextButton.innerHTML = ">";
     let button = document.createElement("button");
@@ -297,11 +301,14 @@ const makeButtons = async (maxPage, data) => {
 //Secondary API calls must be made to the specific API endpoints, and the results for those must be handled individually. Those secondary API calls take place in handleSearchParam();
 
 const initialDataFetch = async (searchParam, accessToken) => {
+    document.querySelector(".table-head").classList.add("hidden");
+
     loadedData = [] //reset loaded data each time a new seach is made with a different searchParam;
     controller = new AbortController(); //each time we search for something, we also create a controller to be
     const signal = controller.signal;   //able to stop the search
     pagination.innerHTML = "";   //reset the buttons as well as the previous results when a new fetch request starts
     resultTitle.innerText = "";
+    resultsTable.innerHTML = "";
     title.innerText= `${searchParam}`;
     currentPage = 0; //reset page when a new request is made
     dataBeingFetched = true;
@@ -380,7 +387,7 @@ const handleAccountBank = async (result, key, value, {signal} = {}) => {
                     .then((_item) => {
                         console.log(_item);
                     const {icon, name} = _item;
-                    key.push(`<a href=${icon} target="_blank"><img src=${icon} alt="item icon" height="30px" width="30px"></a>`)
+                    key.push(`<a class="inline-block" href=${icon} target="_blank"><img src=${icon} alt="item icon" height="30px" width="30px"></a>`)
                     value.push(name );
                 })
             }
@@ -394,7 +401,7 @@ const handleAccountBank = async (result, key, value, {signal} = {}) => {
 
     for (let i = 0; i < response.length; i++) {
         const {icon, name} = response[i];
-        key.push(`<a href=${icon} target="_blank"><img src=${icon} alt="mini icon" height="30px" width="30px"></a>`)
+        key.push(`<a class="inline-block" href=${icon} target="_blank"><img src=${icon} alt="mini icon" height="30px" width="30px"></a>`)
         value.push(name);
     }
     resultTitle.innerText = "These items are currently in your bank."
@@ -409,7 +416,7 @@ const handleAccountMinis = async (result, key, value, {signal} = {}) => {
     for (let i = 0; i < response.length; i++) {
         const element = response[i];
         const {icon, name} = element //deconstruct them into values you want to pass as key and value pairs to be sent to the dom
-        key.push(`<a href=${icon} target="_blank"><img src=${icon}  alt="mini icon" height="30px" width="30px"></a>`);
+        key.push(`<a class="inline-block" href=${icon} target="_blank"><img src=${icon}  alt="mini icon" height="30px" width="30px"></a>`);
         value.push(name);
     }
     if (dataFound) {resultTitle.innerText = "Here are the minis you have unlocked"}
@@ -431,7 +438,7 @@ const handleAccountDyes = async (result, key, value, {signal} = {}) => {
     }
     let dyeData = await fetchRequest(dyeIds,"https://api.guildwars2.com/v2/items?ids=", accessToken, {signal});
     console.log(dyeData);
-    let dyeIcon = dyeData.map((data) => ` - <img class="dye-icon" src=${data.icon} heigh="30" width="30">`);
+    let dyeIcon = dyeData.map((data) => ` - <img class="inline-block" class="dye-icon" src=${data.icon} heigh="30" width="30">`);
 
     //add dyeicons to each matching key;
     for(let i = 0; i < key.length; i++){value[i] += dyeIcon[i] ? dyeIcon[i] : " - Image not found "}
@@ -459,12 +466,12 @@ const handleAccountInventory = async (result, key, value, {signal} = {}) => {
         const element = response[i];
         if (element.description) {
             let {icon, name, description} = element;        
-            key.push([`<a href=${icon} target="_blank"><img src=${icon} alt="mini icon" height="30px" width="30px"></a> <br/> <p>${description}</p>`]);
+            key.push([`<a  href=${icon} target="_blank"><img class="inline-block m-auto" src=${icon} alt="mini icon" height="30px" width="30px"></a> <br/> <p>${description}</p>`]);
             value.push(name);                    
         } else {
             let {icon, name} = element;
             let {description} = element.details;
-            key.push([`<a href=${icon} target="_blank"><img src=${icon} alt="mini icon" height="30px" width="30px"></a> <br/> <p>${description}</p>`]);
+            key.push([`<a href=${icon} target="_blank"><img class="inline-block m-auto" src=${icon} alt="mini icon" height="30px" width="30px"></a> <br/> <p>${description}</p>`]);
             value.push(name);
         }
     }
@@ -535,7 +542,8 @@ const handleAccountBuildstorage = async (result, key, value, {signal} = {}) =>{
         let traitNames = await fetchData2.map((trait) =>{
             return trait.name;
         })
-        key.push(`${[name, profession]}<br><p>Traits lines:${specNames}</p><br><p>Traits:${traitNames}<p>`);
+        key.push(`${[name, profession]}<br><p><span class="font-bold">
+                            Traits lines:</span>${specNames}</p><p><span class="font-bold">Traits:</span> ${traitNames.join(", ")}<p>`);
     }
     for (let i = 0; i < skillsArray.length; i++) {
         const element = skillsArray[i];
@@ -545,9 +553,9 @@ const handleAccountBuildstorage = async (result, key, value, {signal} = {}) =>{
         let response = await fetch(`https://api.guildwars2.com/v2/skills?ids=${[heal, utilities, elite].flat()},?access_token=${accessToken}`, {signal})
         response = await response.json();
         const skills = response.map((skill) => {
-            return [`<div class="buildstorage"><img src=${skill.icon} height="30px" width="30px"><p>${[skill.name].join("")}</p></div>`];
+            return [`<div class="flex justify-between items-center w-2/6 m-auto"><img src=${skill.icon} height="30px" width="30px"><p>${skill.name}</p></div>`];
         }); //ENGINER MORTAR ELITE KIT SEEMS BUGGED? IT DOESNT SHOW UP WHEREAS EVERY OTHER ENGINEER ELITE SEEMS OK
-        value.push(skills)
+        value.push(skills.join(""))
     }                   
     dataFound = false; //I want to call generatePageNumbers and makepages manually for this endpoint
 

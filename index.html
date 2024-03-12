@@ -4,59 +4,66 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>GW2 API</title>
-    <link rel="stylesheet" href="style.css">
     <link rel="shortcut icon" href="/img/favicon.ico" type="image/x-icon">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
 </head>
-    <body>
-        <nav>
-            <h1>Guild Wars 2 Account Info</h1>
-            <h3>Developed by <a href="https://github.com/inthenile" target="_blank">inthenile</a></h3>
-            </nav>
+    <body class="w-5/6 m-auto"> 
+        <nav class="mb-10 pb-3 pt-3 text-center bg-orange-400">
+            <h1 class="font-bold  text-white font-weight-900">Guild Wars 2 Account Info</h1>
+            <h3 class="mt-2">Developed by <a href="https://github.com/inthenile"
+                                target="_blank"
+                                class="text-white  hover:underline">inthenile</a></h3>
         </nav>
-        <div class="content">
-            <h3 class="info"></h3>
-            <div class="input">
-                <input type="text" placeholder="Enter your API key here" class="api-value">
-                <button class="save-button">Save / Reset</button>
+        <div class="content text-center">
+            <div class="input mb-5">
+                <input type="text" placeholder="Enter your API key here" class="api-value border-2 rounded-lg border-gray-600 border-radius-600 p-1 text-center text-xs w-96">
+                <button class="save-button rounded-lg block m-auto mt-2 text-xs w-100  p-1 text-xs w-24 text-white bg-orange-300 hover:bg-orange-500"> Save / Reset</button>
             </div>
-            <div class="selection">
-                <select>
+            <h3 class="info"></h3>
+            <div class="selection mt-10">
+                <select class="border-2 rounded-lg border-gray-600 border-radius-600 block m-auto mt-2 text-xs w-100  p-1 w-60">
                     <!--SELECT OPTIONS, LIKE OTHER ELEMENTS, ARE GENERATED USING JAVASCRIPT-->
                 </select>
-                <br>
-                <button class="search-button">Search</button>
-                <button class="cancel-button hidden">Cancel</button>
+                <button class="search-button rounded-lg  block m-auto mt-2 text-xs w-100 p-1 w-24 text-white bg-orange-300 hover:bg-orange-500">Search</button>
+                <button class="cancel-button hidden rounded-lg block m-auto mt-2 text-xs w-100 p-1 w-24 bg-red-400 hover:bg-red-600 text-white""> Cancel</button>
             </div>
-            <h2  class="title"> <!-- THE ACTUAL TITLE OF THE SEARCH PARAM. --></h2>
+            <h2 class="title mt-5 font-bold text-orange-500 text-xl"> <!-- THE ACTUAL TITLE OF THE SEARCH PARAM. --></h2>
 
-            <div class="fetch-info">
+            <div class="fetch-info mt-2">
                 <!--INFO ABOUT FETCH IS GIVEN HERE-->
             </div>
-            <div class="result-title" style="text-align: center;">
+            <div class="result-title"">
                 <!--THIS IS WHERE EXTRA INFO SUCH AS "These items are currently in your bank" ETC. IS FOUND-->
             </div>
             <div class="results">
                 <!--RESULTS ARE RENDERED HERE-->
             </div>
             
-            <table class="results-table">
+            <table class=" m-auto">
                 <thead>
                     <tr>
                         <th class="table-head hidden">RESULTS</th>     
                     </tr>
                 </thead>
+                <tbody class="results-table">
+               </tbody>
             </table>
 
             <div class="pagination">
                 <!--PAGES ARE RENDERED HERE-->
             </div>
-            <h3 class="loading hidden" style="text-align: center;">LOADING YOUR DATA</h3>
+            <h3 class="loading hidden">LOADING YOUR DATA</h3>
 
         </div>
-        <footer>
+        <footer class="justify-center items-center mt-10 bg-orange-400 w-full m-auto h-20 flex">
             <div>
-                <p>Check out my <a href="https://github.com/inthenile" target="_blank">GitHub</a> and <a href="https://www.linkedin.com/in/salim-caliskan-724811273/" target="_blank">LinkedIn</a></p>
+                <p>Check out my <a href="https://github.com/inthenile"
+                                    target="_blank" 
+                                    class="font-bold text-white hover:underline ">GitHub</a> and 
+                                    <a href="https://www.linkedin.com/in/salim-caliskan-724811273/"
+                                     target="_blank"
+                                     class="text-white font-bold hover:underline">LinkedIn</a></p>
             </div>
         </footer>
     </body>
