@@ -34,6 +34,7 @@ This is simply for fetch API practices without worrying about the front-end desi
 ```
   
 # Updates
+Account/wallet param is now functional.
 Changed styling to Tailwind CSS to learn it. I have been playing around with it; even though it is somewhat difficult with javascript generated content, but it works very well regardless.
 
 <hr> 
@@ -97,4 +98,6 @@ I realised I was being incredibly inefficient by passing keys and values separat
 -account/emotes <br>
 -account/inventory<br>
 -account/minis; <br>
+-account/wallet <br>
+-characters <br>
 -tokeninfo <br>

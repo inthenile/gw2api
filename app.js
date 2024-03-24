@@ -550,8 +550,8 @@ const handleAccountBuildstorage = async (result, key, value, {signal} = {}) =>{
         const {heal, utilities, elite} = element;
         //I HAVE TO FETCH MANUALLY HERE BECAUSE OF GW2 API REFUSES TO WORK PROPERLY WITHOUT A COMMA AT THE END SOMETIMES
         //THE SAME CODE WILL YIELD 3 VALUES INSTEAD OF 4 WITHOUT THE COMMA BEFORE ?access_token
-        let response = await fetch(`https://api.guildwars2.com/v2/skills?ids=${[heal, utilities, elite].flat()},?access_token=${accessToken}`, {signal})
-        response = await response.json();
+        const req = await fetch(`https://api.guildwars2.com/v2/skills?ids=${[heal, utilities, elite].flat()},?access_token=${accessToken}`, {signal})
+        const response = await req.json();
         const skills = response.map((skill) => {
             return [`<div class="flex justify-between items-center w-2/6 m-auto"><img src=${skill.icon} height="30px" width="30px"><p>${skill.name}</p></div>`];
         }); //ENGINER MORTAR ELITE KIT SEEMS BUGGED? IT DOESNT SHOW UP WHEREAS EVERY OTHER ENGINEER ELITE SEEMS OK
@@ -561,6 +561,23 @@ const handleAccountBuildstorage = async (result, key, value, {signal} = {}) =>{
 
     resultTitle.innerText = "Here are your builds saved in your build storage"
     return {key, value}
+}
+
+const handleAccountWallet = async (result, key, value, {signal} ={}) => {
+    let arr = [];
+    let currencyValue = [];
+    for (let i = 0; i < result.length; i++){
+        const {id, value} =  result[i];
+        arr.push(id);
+        currencyValue.push(value);
+    }
+    const response = await fetchRequest(arr, "https://api.guildwars2.com/v2/currencies?ids=", accessToken, {signal})
+    for (let i = 0; i < response.length; i++) {
+        const {name, description, icon} = response[i];
+        key.push(`${name} <img src=${icon} height="30px" width="30px" class="inline"> <b>${currencyValue[i]}</b>`)
+        value.push(`${description}`)
+    }
+    return {key,value}
 }
 
 //API CALLS: secondary API calls. Result is the result from the initial API call.
@@ -598,11 +615,12 @@ const handleSearchParam = async (result, searchParam, {signal} = {}) =>{
             case "account/buildstorage": //this function deals with the data in itself, and does not reutrn anything
                 data = await handleAccountBuildstorage(result, key, value, {signal});
             break;
-
+            case "account/wallet":
+                data = await handleAccountWallet(result, key, value, {signal})
+            break;
             case "characters":
                 result.forEach(character => {value.push(character)});
                 return {key, value};
-
             default: 
                 data = result;
                 break;
