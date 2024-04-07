@@ -34,11 +34,16 @@ This is simply for fetch API practices without worrying about the front-end desi
 ```
   
 # Updates
-Account/wallet param is now functional.
-Changed styling to Tailwind CSS to learn it. I have been playing around with it; even though it is somewhat difficult with javascript generated content, but it works very well regardless.
+
+Created searchFunctions.js and moved the search functions from app.js to thin it out a little. I also commented out the unimplemented search parameters for simplicity for the time being.
 
 <hr> 
 OLD UPDATES
+
+Account/wallet param is now functional.
+Changed styling to Tailwind CSS to learn it. I have been playing around with it; even though it is somewhat difficult with javascript generated content, but it works very well regardless.
+
+
 <hr>
 I have made some major updates on how the data fetching works. Initially, the way I made fetches were in huge chunks; doing every fetch request that was necessary to display the information to the dom at once. Even if the user didn't go to the second page, the second page fetches were already frontloaded. This was incredibly slow, especially for achievements parameter, which can possibly have thousands of return values. As such, I changed the fetch logic to work with the page buttons. There is one initial fetch that is made for a search param that essentially calculates how many pages there must be, and does the fetch request for the first page. However, other fetch requests (for item name, description, icon and so forth), for other pages are not called until that specific page is clicked on. I then store these values in an array, so when the user goes back and forth to the pages he had already loaded, there won't be other fetch requests and they wil be loaded locally. This array is reset each time a new searchparameter is used.Lastly, added a table to display the results.
 
@@ -76,7 +81,7 @@ I realised I was being incredibly inefficient by passing keys and values separat
   
 
 # To-do(s)
-
+-add a function to recall the fetch if loading takes too long?
 -rewrite buildstorage to display only one build template at a time? maybe <br>
 <s>-Revisit styling?</s> Swapped over to Tailwind, will update as I go. <br>
 -add more information as key-value pairs to be displayed for specific endpoints (how many items are in the bank, shared inventory and so forth?) <br>
