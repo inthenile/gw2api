@@ -6,7 +6,8 @@ import {
     handleAccountEmotes,
     handleAccountAchievements,
     handleAccountBuildstorage,
-    handleAccountWallet
+    handleAccountWallet,
+    handleAccountLegendaryArmory
  } from "/searchFunctions.js";
 const endpointArray = [
     "account",
@@ -23,7 +24,7 @@ const endpointArray = [
     // "account/home/nodes",
     "account/inventory",
     // "account/jadebots",
-    // "account/legendaryarmory",
+    "account/legendaryarmory",
     // "account/luck",
     // "account/mailcarriers",
     // "account/mapchests",
@@ -400,6 +401,9 @@ const handleSearchParam = async (result, searchParam, {signal} = {}) =>{
             case "characters":
                 result.forEach(character => {value.push(character)});
                 return {key, value};
+            case "account/legendaryarmory":
+                data = await handleAccountLegendaryArmory(result, key, value, {signal});
+            break;
             default: 
                 data = result;
                 break;

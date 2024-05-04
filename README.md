@@ -34,7 +34,7 @@ This is simply for fetch API practices without worrying about the front-end desi
 ```
   
 # Updates
-
+Legendary armory added. (Also added a condition statement to prevent bugs from occuring if there are no items in the bank/shared inventory/no minis unlocked etc.)
 Created searchFunctions.js and moved the search functions from app.js to thin it out a little. I also commented out the unimplemented search parameters for simplicity for the time being.
 
 <hr> 
@@ -104,5 +104,6 @@ I realised I was being incredibly inefficient by passing keys and values separat
 -account/inventory<br>
 -account/minis; <br>
 -account/wallet <br>
+-account/legendaryarmory <br>
 -characters <br>
 -tokeninfo <br>
